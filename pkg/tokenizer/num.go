@@ -2,21 +2,19 @@ package tokenizer
 
 import (
 	"fmt"
-	"os"
 	"pieces-os-go/internal/model"
 	"pieces-os-go/pkg/tiktoken_loader"
 	"pieces-os-go/pkg/tiktoken_loader/assets"
 	"strings"
 
+	"github.com/daulet/tokenizers"
 	"github.com/pkoukk/tiktoken-go"
-	"github.com/sugarme/tokenizer"
-	"github.com/sugarme/tokenizer/pretrained"
 )
 
 var (
 	tiktokenCl100k  *tiktoken.Tiktoken
 	tiktokenO200k   *tiktoken.Tiktoken
-	claudeTokenizer *tokenizer.Tokenizer
+	claudeTokenizer *tokenizers.Tokenizer
 )
 
 // InitTokenizers 初始化所有tokenizer
@@ -130,26 +128,12 @@ func NumTokensFromMessages(messages []model.ChatMessage, model string) (numToken
 }
 
 // NewTokenizer 从JSON数据创建新的tokenizer
-func NewTokenizer(tokenizerJSON []byte) (*tokenizer.Tokenizer, error) {
-	// 创建临时文件
-	tmpFile, err := os.CreateTemp("", "tokenizer-*.json")
-	if err != nil {
-		return nil, fmt.Errorf("创建临时文件失败: %v", err)
-	}
-	defer os.Remove(tmpFile.Name())
-	defer tmpFile.Close()
-
-	// 将JSON数据写入临时文件
-	if _, err := tmpFile.Write(tokenizerJSON); err != nil {
-		return nil, fmt.Errorf("写入临时文件失败: %v", err)
-	}
-
-	// 使用临时文件初始化tokenizer
-	tk, err := pretrained.FromFile(tmpFile.Name())
+func NewTokenizer(tokenizerJSON []byte) (*tokenizers.Tokenizer, error) {
+	// 直接从字节数据创建tokenizer
+	tk, err := tokenizers.FromBytes(tokenizerJSON)
 	if err != nil {
 		return nil, fmt.Errorf("初始化tokenizer失败: %v", err)
 	}
-
 	return tk, nil
 }
 
@@ -158,9 +142,9 @@ func CountTokens(text string) (int, error) {
 	if claudeTokenizer == nil {
 		return 0, ErrTokenizerNotInitialized
 	}
-	encoding, err := claudeTokenizer.EncodeSingle(text)
-	if err != nil {
-		return 0, fmt.Errorf("计算token数量失败: %v", err)
+	ids, _ := claudeTokenizer.Encode(text, true)
+	if ids == nil {
+		return 0, nil
 	}
-	return encoding.Len(), nil
+	return len(ids), nil
 }

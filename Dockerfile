@@ -5,7 +5,7 @@ WORKDIR /app
 
 # 设置 Go 环境变量
 ENV GO111MODULE=on \
-    CGO_ENABLED=0 \
+    CGO_ENABLED=1 \
     GOOS=linux \
     GOPROXY=https://goproxy.io,direct
 

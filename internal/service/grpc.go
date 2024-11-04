@@ -145,6 +145,7 @@ func createNewConnection(addr string) (*grpc.ClientConn, error) {
 		grpc.WithKeepaliveParams(kacp),
 		grpc.WithInitialWindowSize(1<<20),     // 1MB
 		grpc.WithInitialConnWindowSize(1<<20), // 1MB
+		grpc.WithUserAgent("dart-grpc/2.0.0"), // 添加 User-Agent 设置
 	)
 	if err != nil {
 		return nil, fmt.Errorf("connection error")

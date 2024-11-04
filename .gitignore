@@ -5,3 +5,4 @@ api/index.js
 protos/*.proto
 run.py
 *.bak
+GIT_COMMIT_CONVENTION.md
